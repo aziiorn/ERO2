@@ -1,57 +1,99 @@
 # ERO2
 
-## Présentation
+**Étude des comportements de systèmes d’attente**
 
-**Étude des comportements de systèmes d’attente**  
+Ce projet étudie l’effet de différentes règles de priorité sur les performances d’un système de correction automatique, dans le contexte des rendus de TP prépa et de piscine C à EPITA.
 
-Ce projet s’intéresse à la question suivante :  
+L’étude s’appuie sur des données de temps de traitement, des données récupérées depuis l’intra EPITA et des simulations de plusieurs architectures de files d’attente. Le rapport théorique et l’analyse des scénarios sont disponibles dans [`Rapport.pdf`](Rapport.pdf).
 
-Quel effet a la priorisation des utilisateurs sur les performances du système lors des rendus de TP prépa et de piscine C ?  
+## Fonctionnalités clés
 
-Dans ce rapport, nous analysons l’infrastructure de correction automatique d’EPITA.  
-Nous étudions ce système de moulinettage sous différents angles mathématiques et expérimentaux.  
-
-Pour rendre notre analyse pertinente, nous nous sommes appuyés sur :  
-- des données réelles issues des graphiques disponibles sur Grafana  
-- nos propres données scrappées directement depuis l’intra (tous les tags de chaque exercice avec leur temps de traitement en ms)  
-
-Les résultats bruts de nos simulations sont disponibles dans le dossier backend/results/.
+- Simulation de l’arrivée et du traitement des tags de rendu
+- Comparaison de plusieurs architectures de files d’attente :
+  - Waterfall
+  - Anti-priority
+  - Channels and Dams
+  - Calendar Priority
+- Paramétrage du nombre de serveurs, des populations et des priorités
+- Génération de graphiques et de statistiques par scénario
+- Génération d’un tableau récapitulatif à partir des résultats disponibles
 
 ## Prérequis
 
-- Python 3.x installé sur votre machine.
+- Python 3.11.14
+- `pip`
 
 ## Installation et lancement
 
-1. Cloner le dépôt ou télécharger les fichiers.  
-2. Installer les dépendances :
-  
-```bash
-pip install -r requirements.txt
-```
-
-3. Se placer dans le dossier backend :
+1. Cloner le dépôt et entrer dans le dossier du backend :
 
 ```bash
-cd backend
+git clone git@github.com:aziiorn/ERO2.git && cd ERO2/backend
 ```
 
-4. Lancer le script principal pour générer les tags et simuler un scénario :
+2. Lancer la simulation configurée dans `main.py` :
 
 ```bash
 python -m main
 ```
 
-## Aller plus loin
+La simulation utilise actuellement le cache `pushes_cache.pkl_0.1` s’il est présent. Si ce cache est absent, les tags sont générés à partir des données JSON du dossier `Scrapper/`.
 
-L'architecture utilisée peut être changée au niveau du `main.py`. Nous avons par défaut mis des paramètres "réalistes" mais tout peut être modifié. Les fichiers relatifs à la paramétrisation du système sont : `main.py`, `model.py`.
+Les résultats de l’exécution sont écrits dans `backend/results/Test/`.
 
----
+## C’est parti !
 
-**Membres du groupe :**  
-- Paul Pazart  
-- Lucas Burgaud  
-- Kylian Bozec  
-- Etienne Senigout  
-- Guillaume Hanry  
-- Pierre Braud  
+À la fin de l’exécution, le dossier `backend/results/Test/` contient les statistiques et les graphiques du scénario, notamment :
+
+- `stats.json`
+- `entry_queue.png`
+- `exit_queue.png`
+- `waiting_time.png`
+
+Les résultats déjà présents pour les autres scénarios sont conservés dans `backend/results/`.
+
+## Générer le tableau récapitulatif
+
+Depuis le dossier `backend`, exécuter :
+
+```bash
+python create_tables.py
+```
+
+Le tableau LaTeX est généré dans `backend/results/table_all_pop.tex`, à partir des fichiers `stats.json` disponibles pour les scénarios répertoriés dans `create_tables.py`.
+
+## Configuration
+
+Le scénario exécuté par défaut est défini dans `backend/main.py`. On peut notamment y modifier :
+
+- l’architecture de file d’attente ;
+- le nombre de serveurs ;
+- la taille des files ;
+- les priorités et leurs périodes d’application ;
+- les paramètres des populations et des temps de traitement.
+
+Les modèles et les paramètres sont principalement définis dans `backend/common/model.py`, `backend/main.py` et les fichiers de `backend/queuing/`.
+
+## Structure du projet
+
+```text
+ERO2/
+├── backend/
+│   ├── common/       # Modèles et fonctions communes
+│   ├── pushs/        # Génération des arrivées de tags
+│   ├── queuing/      # Architectures de files d’attente
+│   ├── results/      # Résultats des scénarios
+│   └── main.py       # Configuration et lancement d’une simulation
+├── Scrapper/         # Scraper et données d’entrée
+├── Rapport.pdf       # Rapport théorique et analyse
+└── README.md
+```
+
+## Membres du groupe
+
+- Paul Pazart
+- Lucas Burgaud
+- Kylian Bozec
+- Etienne Senigout
+- Guillaume Hanry
+- Pierre Braud
